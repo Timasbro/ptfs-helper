@@ -1,1 +1,499 @@
-/tmp/l-791zR88Eb-KXZ9-BMg1aJO.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flight Planner & ATC Assistant</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+        }
+
+        .container {
+            width: 70%;
+            padding: 20px;
+            background: #fff;
+        }
+          .settings-sidebar {
+            width: 30%;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-left: 1px solid #ccc;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+
+        .form-section, .notes-section, .cheat-sheet-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        label {
+            display: inline-block;
+            width: 150px;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], select, textarea {
+            width: calc(100% - 170px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        textarea {
+            height: 150px;
+        }
+
+        button {
+             background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+             background-color: #0056b3;
+        }
+
+        .cheat-sheet-section {
+            margin-top: 20px;
+             background-color: #eef;
+            padding: 15px;
+        }
+
+        #cheatSheet {
+            font-size: 1.1em;
+             white-space: pre-line;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            line-height: 1.6;
+            padding: 15px;
+        }
+
+        .notes-info {
+           font-size: 0.9em;
+           color: #777;
+           margin-bottom: 10px;
+        }
+
+          /* Chart Styles */
+        .charts-section {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+             margin-top: auto;
+        }
+
+        .charts-section h3 {
+            margin-bottom: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .charts-section.collapsed .charts-content {
+            display: none;
+        }
+
+         .charts-content {
+          display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+             overflow: hidden;
+        }
+
+        .chart-item {
+           display: flex;
+          flex-direction: column;
+        }
+
+        .chart-thumbnail {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+         .chart-item input {
+            width: calc(100% - 10px);
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.8em;
+             margin-bottom: 5px;
+
+        }
+        .chart-item > div {
+            display: flex;
+           align-items: center;
+        }
+        .remove-button {
+             background-color: #f44336;
+            color: white;
+            border: none;
+             padding: 5px 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        /* Floating window styles */
+       .chart-window {
+            position: fixed;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            overflow: hidden;
+             display: none;
+            resize: both;
+            overflow: auto;
+        }
+        .chart-window.minimized {
+         height: auto;
+         width: auto;
+         padding: 5px;
+         overflow: visible;
+        }
+         .chart-window.open {
+             display: block;
+         }
+
+        .chart-window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 5px;
+        }
+
+        .close-button {
+             background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .minimize-button {
+             background-color: #333;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .chart-image {
+            max-width: 100%;
+            max-height: 100%;
+             display: block;
+             cursor: move;
+        }
+          .minimized-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        gap: 5px;
+        padding: 5px;
+        background-color: #f0f0f0;
+        border-top: 1px solid #ccc;
+       z-index: 999;
+        }
+    .minimized-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    border-radius: 4px;
+    }
+    </style>
+</head>
+<body>
+     <div class="container">
+            <h1>Flight Planner</h1>
+            <div class="cheat-sheet-section">
+            <h2>Cheat Sheet</h2>
+            <div id="cheatSheet"></div>
+            </div>
+
+         </div>
+    <div class="settings-sidebar">
+        <h2>Settings</h2>
+        <div class="form-section">
+             <h2>Flight Plan</h2>
+            <form id="flightPlanForm">
+                <label for="callsign">Callsign:</label>
+                <input type="text" id="callsign" required><br><br>
+
+                <label for="aircraft">Aircraft:</label>
+                <input type="text" id="aircraft" required><br><br>
+
+                <label for="ifrVfr">IFR/VFR:</label>
+                <select id="ifrVfr">
+                    <option value="IFR">IFR</option>
+                    <option value="VFR">VFR</option>
+                </select><br><br>
+
+                <label for="departure">Departure:</label>
+                <input type="text" id="departure" required><br><br>
+
+                <label for="arrival">Arrival:</label>
+                <input type="text" id="arrival" required><br><br>
+
+                 <label for="route">Route:</label>
+                <textarea id="route">GPS Direct</textarea><br><br>
+
+                <label for="fl">Flight Level:</label>
+                <input type="text" id="fl" required><br><br>
+
+                <label for="squawk">Squawk Code:</label>
+                <input type="text" id="squawk" required><br><br>
+                <button type="button" onclick="generateCheatSheet()">Generate Cheat Sheet</button>
+                 <button type="button" onclick="copyFlightPlan()">Copy Flight Plan</button>
+
+            </form>
+        </div>
+
+        <div class="notes-section">
+            <h2>Structured Notes</h2>
+            <p class="notes-info">
+                Use the following format for notes:<br>
+                <code>DepRunway = [runway]<br>
+                ArRunway = [runway]<br>
+                DepTaxi = [taxi instructions]<br>
+                ArTaxi = [taxi instructions]<br>
+                Heading = [heading]<br>
+                Altitude = [altitude]<br>
+                Wind = [wind info]<br>
+                DepMin = [minutes]<br>
+                DepMinHead = [heading]<br>
+                 DepGate = [gate number]<br>
+                  ArGate = [gate number]</code><br>
+
+            </p>
+             <textarea id="structuredNotes" placeholder="Enter your notes here"></textarea>
+           </div>
+
+         <div class="notes-section">
+            <h2>General Notes</h2>
+            <textarea id="generalNotes" placeholder="Type any important notes here"></textarea>
+           </div>
+            <div class="charts-section" id="chartsSection">
+                 <div style="display: flex; justify-content: space-between; align-items: center">
+                 <h3 onclick="toggleCharts()">Charts</h3>
+                    <button  onclick="addChart()">Add Chart</button>
+                     </div>
+                <div class="charts-content" id="chartsContent">
+                    <!-- Chart Thumbnails -->
+                     <div class="chart-item">
+                        <img src="https://placekitten.com/100/100" class="chart-thumbnail" data-src="https://placekitten.com/800/600" alt="Chart 1" />
+                           <div>
+                        <input type="text" value="Chart 1" data-src="https://placekitten.com/800/600">
+                          <button class="remove-button" onclick="removeChart(this)">Remove</button>
+                           </div>
+                        <input type="url" placeholder="Chart Image URL"  value="https://placekitten.com/800/600">
+                     </div>
+                     <div class="chart-item">
+                       <img src="https://placekitten.com/100/101" class="chart-thumbnail" data-src="https://placekitten.com/801/601" alt="Chart 2" />
+                      <div>
+                       <input type="text" value="Chart 2" data-src="https://placekitten.com/801/601">
+                         <button class="remove-button" onclick="removeChart(this)">Remove</button>
+                          </div>
+                         <input type="url" placeholder="Chart Image URL"  value="https://placekitten.com/801/601">
+                     </div>
+                       <div class="chart-item">
+                        <img src="https://placekitten.com/100/102" class="chart-thumbnail" data-src="https://placekitten.com/802/602" alt="Chart 3" />
+                       <div>
+                        <input type="text" value="Chart 3" data-src="https://placekitten.com/802/602">
+                            <button class="remove-button" onclick="removeChart(this)">Remove</button>
+                             </div>
+                         <input type="url" placeholder="Chart Image URL" value="https://placekitten.com/802/602">
+                       </div>
+                        <div class="chart-item">
+                        <img src="https://placekitten.com/100/103" class="chart-thumbnail" data-src="https://placekitten.com/803/603" alt="Chart 4" />
+                       <div>
+                        <input type="text" value="Chart 4" data-src="https://placekitten.com/803/603">
+                          <button class="remove-button" onclick="removeChart(this)">Remove</button>
+                           </div>
+                       <input type="url" placeholder="Chart Image URL" value="https://placekitten.com/803/603">
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="minimized-bar" id="minimizedBar">
+        </div>
+    <!-- Floating windows for charts -->
+    <div class="chart-window" id="chartWindow">
+            <div class="chart-window-header">
+              <span id="chartWindowTitle"></span>
+              <div>
+                 <button class="minimize-button" onclick="minimizeChart(this)">-</button>
+                 <button class="close-button" onclick="closeChart()">X</button>
+                 </div>
+            </div>
+            <img src="" alt="Chart" class="chart-image" id="chartImage"/>
+
+    </div>
+
+    <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+         loadState();
+       });
+
+        function generateCheatSheet() {
+            const callsign = document.getElementById('callsign').value;
+            const aircraft = document.getElementById('aircraft').value;
+            const ifrVfr = document.getElementById('ifrVfr').value;
+            const departure = document.getElementById('departure').value;
+            const arrival = document.getElementById('arrival').value;
+             const route = document.getElementById('route').value;
+            const fl = document.getElementById('fl').value;
+            const squawk = document.getElementById('squawk').value;
+
+            const structuredNotes = document.getElementById('structuredNotes').value;
+             const generalNotes = document.getElementById('generalNotes').value;
+
+           const parsedNotes = parseStructuredNotes(structuredNotes);
+              const getNoteValue = (key, defaultValue) => {
+                 return parsedNotes[key] !== undefined ? parsedNotes[key] : defaultValue;
+            };
+
+            const cheatSheetContent = `
+            **Flight Plan:**
+
+            Callsign: ${callsign}
+            Aircraft: ${aircraft}
+            IFR/VFR: ${ifrVfr}
+            Departure: ${departure}
+            Arrival: ${arrival}
+            Route: ${route}
+            Flight Level: ${fl}
+            Squawk Code: ${squawk}
+
+            **ATC Communications Example:**
+
+            **_BEFORE STARTING TO FLY:_**
+            - Read information ATIS in #atis-information-1
+            - File a flight plan in #flight-plans:
+               Callsign: ${callsign}
+               Aircraft: ${aircraft}
+               IFR/VFR: ${ifrVfr}
+               Departure: ${departure}
+               Arrival: ${arrival}
+               Route: ${route}
+               FL: ${fl}
+               Sqk: ${squawk}
+            - Open ${departure}, ${arrival}, airport charts
+            - IFR is flying to another airport and VFR is flying to the same
+            place you departed
+
+            **_CONTACT ${departure} VC_**
+            - Pilot: ${departure} Delivery, ${callsign}, radio check.
+            - ATC: ${callsign}, radio check 5/5
+            - Pilot: ${callsign}, requesting IFR Clearance to ${arrival} with information (current info letter).
+            - ATC: ${callsign}, cleared IFR to ${arrival} via ${route}. Expect runway ${getNoteValue('DepRunway','[runway]')} for departure. Climb and maintain ${getNoteValue('Altitude','[altitude]')} feet, expect flight level ${fl}, ${getNoteValue('DepMin','[minutes]')} after departure, heading ${getNoteValue('DepMinHead','[heading]')}. Departure is with me, Squawk ${squawk}.
+            - Pilot: Cleared IFR to ${arrival} via ${route}. Expect runway ${getNoteValue('DepRunway','[runway]')} for departure. Climb and maintain ${getNoteValue('Altitude','[altitude]')} feet, expect flight level ${fl}, ${getNoteValue('DepMin','[minutes]')} after departure, heading ${getNoteValue('DepMinHead','[heading]')}. Departures is with you, Squawk ${squawk}, ${callsign}.
+           _EDIT FLIGHT PLAN AND PUT CORRECT SQUAWK CODE_
+
+            **_CHANGE VC TO ${departure} GROUND_**
+             - Pilot: Ground, ${callsign}, ready for push and start from Gate ${getNoteValue('DepGate','[gate number]')}.
+            - ATC: ${callsign}, ${departure} Ground, Gate ${getNoteValue('DepGate','[gate number]')} push and start approved face [direction].
+            - Pilot: Push and start approved, face [direction], ${callsign}.
+            _PUSHBACK AND FACE THE INSTRUCTED DIRECTION_
+            - Pilot: ${callsign}, ready for taxi to Runway ${getNoteValue('DepRunway','[runway]')}.
+            - ATC: ${callsign}, taxi to holding point [number], Runway ${getNoteValue('DepRunway','[runway]')} via ${getNoteValue('DepTaxi','[taxi instructions]')}.
+            - Pilot: Taxi to holding point [number], Runway ${getNoteValue('DepRunway','[runway]')} via ${getNoteValue('DepTaxi','[taxi instructions]')}, ${callsign}.
+            _TAXI TO RUNWAY VIA TAXI INSTRUCTIONS AND HOLD SHORT AT HOLDING POINT_
+
+           *at holding point*
+            - Pilot: ${callsign}, holding short of Runway ${getNoteValue('DepRunway','[runway]')} at [holding point].
+            - ATC: ${callsign}, runway ${getNoteValue('DepRunway','[runway]')}, cleared for takeoff, ${getNoteValue('Wind','[wind info]')}, fly runway heading.
+           - Pilot: Cleared for takeoff runway ${getNoteValue('DepRunway','[runway]')}, fly runway heading, ${callsign}.
+           _TAKEOFF RUNWAY_
+            - ATC: ${callsign}, Chicago Center, radar contact established. Climb flight level ${fl}.
+           - Pilot: Climb flight level ${fl}, ${callsign}.
+            _ATC WILL GUIDE YOU ALL THE WAY TO APPROACH_
+            - ATC: ${callsign}, contact ${arrival} Centre on [frequency].
+            - Pilot: Contact ${arrival} Centre on [frequency], ${callsign}.
+            _CHANGE VC TO ${arrival}_
+            - Pilot: ${arrival} Centre, ${callsign}, with you at ${getNoteValue('Altitude','[altitude]')}, heading ${getNoteValue('Heading','[heading]')}.
+            _FOLLOW ATC INSTRUCTIONS_
+
+            *at final approach near Runway*
+            - Pilot: ${callsign}, five mile final Runway ${getNoteValue('ArRunway','[runway]')}.
+           - ATC: ${callsign}, Runway ${getNoteValue('ArRunway','[runway]')} clear to land, ${getNoteValue('Wind','[wind info]')}
+           - Pilot: Cleared to land Runway ${getNoteValue('ArRunway','[runway]')}, ${callsign}.
+            *landed*
+             - ATC: ${callsign}, welcome to ${arrival}, vacate right/left when able.
+            - Pilot: Right/Left when able, ${callsign}.
+           _TURN LEFT/RIGHT TO EXIT RUNWAY WHEN ABLE_
+          - Pilot: ${callsign}, ready to taxi.
+          - ATC: ${callsign}, taxi to ${getNoteValue('ArTaxi','[taxi instructions]')}.
+           - Pilot: Taxi to ${getNoteValue('ArTaxi','[taxi instructions]')}, ${callsign}.
+           _TAXI USING INSTRUCTIONS_
+            - Pilot: ${callsign}, holding point [holding point].
+          - ATC: ${callsign}, cleared to cross Runway ${getNoteValue('ArRunway','[runway]')}, taxi to Gate ${getNoteValue('ArGate','[gate number]')} via ${getNoteValue('ArTaxi','[taxi instructions]')}.
+          - Pilot: Cleared to cross Runway ${getNoteValue('ArRunway','[runway]')}, taxi to Gate ${getNoteValue('ArGate','[gate number]')} via ${getNoteValue('ArTaxi','[taxi instructions]')}, ${callsign}.
+
+            **Key Frequencies and Info**
+            _Check ATIS before flight_
+            _Record all ATC Frequecies in notes_
+            **Departure VC:** _See Notes_
+            **Arrival VC:** _See Notes_
+             **General Notes:**
+            ${generalNotes}
+              `;
+
+            document.getElementById('cheatSheet').textContent = cheatSheetContent;
+            saveState();
+        }
+         function copyFlightPlan() {
+        const callsign = document.getElementById('callsign').value;
+        const aircraft = document.getElementById('aircraft').value;
+        const ifrVfr = document.getElementById('ifrVfr').value;
+        const departure = document.getElementById('departure').value;
+        const arrival = document.getElementById('arrival').value;
+        const route = document.getElementById('route').value;
+        const fl = document.getElementById('fl').value;
+        const squawk = document.getElementById('squawk').value;
+           const flightPlanText = `Callsign: ${callsign}\nAircraft: ${aircraft}\nIFR/VFR: ${ifrVfr}\nDeparture: ${departure}\nArrival: ${arrival}\nRoute: ${route}\nFlight Level: ${fl}\nSquawk Code: ${squawk}`;
+
+           navigator.clipboard.writeText(flightPlanText)
+              
